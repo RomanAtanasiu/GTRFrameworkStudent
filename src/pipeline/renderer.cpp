@@ -46,26 +46,53 @@ void Renderer::setupScene()
 		skybox_cubemap = nullptr;
 }
 
-void Renderer::parseSceneEntities(SCN::Scene* scene, Camera* cam) {
+// TODO: funcio de classe
+
+void Renderer::parseNodes(Node *node, Camera *camera) {
+	if (!node) return;
+
+	if (!node->mesh) return;
+
+	draw_command_list.push_back({
+		node->mesh,
+		node->material,
+		node->getGlobalMatrix()
+	});
+
+	for (auto child : node->children) {
+		parseNodes(child, camera);
+	}
+}
+
+void Renderer::parseSceneEntities(SCN::Scene* scene, Camera* camera) {
 	// HERE =====================
 	// TODO: GENERATE RENDERABLES
 	// ==========================
 
-	for (int i = 0; i < scene->entities.size(); i++) {
-		BaseEntity* entity = scene->entities[i];
+	for (BaseEntity* entity: scene->entities) {
 
-		if (!entity->visible) {
-			continue;
+		if (!entity->visible) continue;
+
+		switch (entity->getType()) {
+			case PREFAB: {
+				// static cas because we know that is a prefab if the code reaches to here.
+				auto prefab_entity = static_cast<PrefabEntity*>(entity);
+
+				parseNodes(&prefab_entity->root, camera);
+				break;
+			}
+			// add more cases for the other types of entities.
+			default: {
+				break;
+			}
 		}
-
+	}
 		// Store Prefab Entitys
 		// ...
 		//		Store Children Prefab Entities
 
 		// Store Lights
 		// ...
-	}
-	
 }
 
 void Renderer::renderScene(SCN::Scene* scene, Camera* camera)
@@ -89,6 +116,10 @@ void Renderer::renderScene(SCN::Scene* scene, Camera* camera)
 	// HERE =====================
 	// TODO: RENDER RENDERABLES
 	// ==========================
+
+	for (auto command : draw_command_list) {
+		renderMeshWithMaterial(command.model, command.mesh, command.material);
+	}
 }
 
 

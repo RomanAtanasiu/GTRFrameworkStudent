@@ -26,7 +26,7 @@ long getTime()
 //this function is used to access OpenGL Extensions (special features not supported by all cards)
 void* getGLProcAddress(const char* name)
 {
-	return SDL_GL_GetProcAddress(name);
+	return (void*)SDL_GL_GetProcAddress(name);
 }
 
 std::string getFolderName(std::string path)

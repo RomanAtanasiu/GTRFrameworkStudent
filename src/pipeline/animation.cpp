@@ -111,6 +111,7 @@ void Skeleton::renderSkeleton(Camera* camera, Matrix44 model, Vector4f color, bo
 	}
 
 	GFX::Shader* shader = GFX::Shader::getDefaultShader("flat");
+	
 	shader->enable();
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_model", model);
